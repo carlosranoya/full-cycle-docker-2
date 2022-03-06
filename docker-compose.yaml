@@ -1,0 +1,54 @@
+version: '3'
+
+services: 
+
+  proxy:
+    build: 
+      context: nginx
+      dockerfile: Dockerfile
+    image: carlosranoya/nginx
+    container_name: nginx
+    tty: true
+    networks: 
+      - challenge2-network
+    ports: 
+      - "8080:80"
+    depends_on: 
+       - app
+  
+  app:
+    build: 
+      context: node
+      dockerfile: Dockerfile
+    container_name: app
+    entrypoint: bash -c "./wait-ip db:3306 15 && node app/index.js"
+    networks: 
+      - challenge2-network
+    volumes: 
+      - ./node:/usr/src/app
+    tty: true
+    # ports: 
+    #   - "3000:3000"
+    depends_on: 
+       - db
+
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    # ports:
+    #   - "3306:3306"
+    volumes: 
+      - ./mysql:/var/lib/mysql
+    environment: 
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+    networks: 
+      - challenge2-network
+
+
+networks: 
+  challenge2-network:
+    driver: bridge 
