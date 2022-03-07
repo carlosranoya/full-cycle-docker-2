@@ -21,7 +21,7 @@ services:
       context: node
       dockerfile: Dockerfile
     container_name: app
-    entrypoint: bash -c "./wait-ip db:3306 15 && node app/index.js"
+    entrypoint: bash -c "./wait-ip db:3306 15 && npm --prefix ./app install ./app && node app/index.js"
     networks: 
       - challenge2-network
     volumes: 
